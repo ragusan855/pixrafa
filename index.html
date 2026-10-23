@@ -1,1 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento Pix</title>
+  <style>
+    body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f4f4f9; }
+    .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; max-width: 90%; }
+    button { background: #00b4d8; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    button:active { background: #0077b6; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Pagar com Pix</h2>
+    <p>Aproxime e toque no botão abaixo para copiar o código:</p>
+    <button onclick="copiarPix()">Copiar Código Pix</button>
+    <p id="msg" style="color: green; margin-top: 10px; display: none;">Copiado com sucesso! Abra o app do seu banco.</p>
+  </div>
 
+  <script>
+    const pixPayload = "00020126360014br.gov.bcb.pix0114+55119802092855204000053039865802BR5910MIG31 SHOP6009Sao Paulo610901227-20062330529daqr364772991792777896883160663043C99";
+
+    function copiarPix() {
+      navigator.clipboard.writeText(pixPayload).then(() => {
+        document.getElementById('msg').style.display = 'block';
+      });
+    }
+  </script>
+</body>
+</html>
