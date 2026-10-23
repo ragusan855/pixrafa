@@ -3,30 +3,252 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pagamento Pix</title>
+  <title>Pagamento via Pix - MIG31 SHOP</title>
+  <!-- Biblioteca para gerar o QR Code dinamicamente -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f4f4f9; }
-    .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; max-width: 90%; }
-    button { background: #00b4d8; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    button:active { background: #0077b6; }
+    :root {
+      --pix-color: #32bcad;
+      --pix-dark: #269185;
+      --bg-color: #0f172a;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 400px;
+      border-radius: 24px;
+      padding: 32px 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      position: relative;
+    }
+
+    .pix-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(50, 188, 173, 0.12);
+      color: var(--pix-dark);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .pix-badge svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--pix-color);
+    }
+
+    h1 {
+      font-size: 22px;
+      color: var(--text-main);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .merchant-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--pix-dark);
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      line-height: 1.4;
+    }
+
+    .qrcode-wrapper {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 16px;
+      display: inline-block;
+      margin-bottom: 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    #qrcode img, #qrcode canvas {
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+
+    .copy-box {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .code-preview {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: left;
+      flex: 1;
+      font-family: monospace;
+    }
+
+    .btn-action {
+      background: var(--pix-color);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(50, 188, 173, 0.4);
+    }
+
+    .btn-action:hover {
+      background: var(--pix-dark);
+      box-shadow: 0 6px 18px rgba(38, 145, 133, 0.5);
+    }
+
+    .btn-action:active {
+      transform: scale(0.98);
+    }
+
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #10b981;
+      color: #fff;
+      text-align: center;
+      border-radius: 10px;
+      padding: 12px 16px;
+      position: absolute;
+      z-index: 10;
+      left: 50%;
+      bottom: -60px;
+      transform: translateX(-50%);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      opacity: 0;
+    }
+
+    .toast.show {
+      visibility: visible;
+      opacity: 1;
+      bottom: 24px;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Pagar com Pix</h2>
-    <p>Aproxime e toque no botão abaixo para copiar o código:</p>
-    <button onclick="copiarPix()">Copiar Código Pix</button>
-    <p id="msg" style="color: green; margin-top: 10px; display: none;">Copiado com sucesso! Abra o app do seu banco.</p>
+
+  <div class="container">
+    <div class="pix-badge">
+      <svg viewBox="0 0 512 512">
+        <path d="M112.5 120.3c21.6 0 42.1 8.5 57.3 23.7l74.8 74.8c6.2 6.2 16.4 6.2 22.6 0l74.8-74.8c15.2-15.2 35.7-23.7 57.3-23.7h18.2L282.8 23.4c-15.6-15.6-41-15.6-56.6 0L109.3 120.3h3.2zm286.9 271.4c-21.6 0-42.1-8.5-57.3-23.7l-74.8-74.8c-6.2-6.2-16.4-6.2-22.6 0l-74.8 74.8c-15.2 15.2-35.7 23.7-57.3 23.7h-3.2l116.9 96.9c15.6 15.6 41 15.6 56.6 0l116.9-96.9h-18.2zm90.2-160.8L404.1 133h-17.7c-16.2 0-31.5 6.4-42.9 17.8L268.7 225.6c-18.7 18.7-49.3 18.7-68 0L125.9 150.8C114.5 139.4 99.2 133 83 133H65.3L-2.4 230.9c-15.6 15.6-15.6 41 0 56.6l67.7 97.9H83c16.2 0 31.5-6.4 42.9-17.8l74.8-74.8c18.7-18.7 49.3-18.7 68 0l74.8 74.8c11.4 11.4 26.7 17.8 42.9 17.8h17.7l67.7-97.9c15.7-15.6 15.7-41 0-56.6z"/>
+      </svg>
+      Pagamento Instantâneo
+    </div>
+
+    <h1>Pagar via Pix</h1>
+    <div class="merchant-name">MIG31 SHOP</div>
+    <p class="subtitle">Aproxime a câmera do QR Code ou toque no botão abaixo para copiar o código.</p>
+
+    <div class="qrcode-wrapper">
+      <div id="qrcode"></div>
+    </div>
+
+    <div class="copy-box">
+      <span class="code-preview" id="previewText"></span>
+    </div>
+
+    <button class="btn-action" onclick="copiarPix()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      Copiar Código Pix
+    </button>
+
+    <div id="toast" class="toast">
+      ✓ Código copiado! Abra o app do seu banco.
+    </div>
   </div>
 
   <script>
-    const pixPayload = "00020126360014br.gov.bcb.pix0114+55119802092855204000053039865802BR5910MIG31 SHOP6009Sao Paulo610901227-20062330529daqr364772991792777896883160663043C99";
+    const CODIGO_PIX = "00020126360014br.gov.bcb.pix0114+55119802092855204000053039865802BR5910MIG31 SHOP6009Sao Paulo610901227-20062330529daqr364772991792777896883160663043C99";
+
+    document.getElementById("previewText").innerText = CODIGO_PIX;
+
+    new QRCode(document.getElementById("qrcode"), {
+      text: CODIGO_PIX,
+      width: 180,
+      height: 180,
+      colorDark: "#0f172a",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M
+    });
 
     function copiarPix() {
-      navigator.clipboard.writeText(pixPayload).then(() => {
-        document.getElementById('msg').style.display = 'block';
-      });
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(CODIGO_PIX).then(mostrarToast);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = CODIGO_PIX;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-999999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        mostrarToast();
+      }
+    }
+
+    function mostrarToast() {
+      const toast = document.getElementById("toast");
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
     }
   </script>
+
 </body>
 </html>
