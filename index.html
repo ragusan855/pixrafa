@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pagamento via Pix - MIG31 SHOP</title>
+  <title>Pagamento via Pix - Rafael Goulart</title>
   <!-- Biblioteca para gerar o QR Code dinamicamente -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
@@ -86,7 +86,7 @@
     }
 
     .qrcode-wrapper {
-      background: #f8fafc;
+      background: #ffffff;
       padding: 16px;
       border-radius: 16px;
       display: inline-block;
@@ -97,7 +97,6 @@
 
     #qrcode img, #qrcode canvas {
       margin: 0 auto;
-      border-radius: 8px;
     }
 
     .copy-box {
@@ -142,7 +141,6 @@
 
     .btn-action:hover {
       background: var(--pix-dark);
-      box-shadow: 0 6px 18px rgba(38, 145, 133, 0.5);
     }
 
     .btn-action:active {
@@ -165,7 +163,7 @@
       box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
       font-size: 13px;
       font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      transition: all 0.3s ease;
       opacity: 0;
     }
 
@@ -187,8 +185,8 @@
     </div>
 
     <h1>Pagar via Pix</h1>
-    <div class="merchant-name">MIG31 SHOP</div>
-    <p class="subtitle">Aproxime a câmera do QR Code ou toque no botão abaixo para copiar o código.</p>
+    <div class="merchant-name">Rafael Goulart</div>
+    <p class="subtitle">Aponte a câmara para o QR Code ou toque no botão abaixo para copiar o código.</p>
 
     <div class="qrcode-wrapper">
       <div id="qrcode"></div>
@@ -207,12 +205,12 @@
     </button>
 
     <div id="toast" class="toast">
-      ✓ Código copiado! Abra o app do seu banco.
+      ✓ Código copiado! Abra a aplicação do seu banco.
     </div>
   </div>
 
   <script>
-    const CODIGO_PIX = "00020126360014br.gov.bcb.pix0114+55119802092855204000053039865802BR5910MIG31 SHOP6009Sao Paulo610901227-20062330529daqr364772991792777896883160663043C99";
+    const CODIGO_PIX = "00020126440014br.gov.bcb.pix0122goulart111@hotmail.com5204000053039865802BR5914RAFAEL GOULART6009SAO PAULO62070503***63046DE4";
 
     document.getElementById("previewText").innerText = CODIGO_PIX;
 
@@ -220,7 +218,7 @@
       text: CODIGO_PIX,
       width: 180,
       height: 180,
-      colorDark: "#0f172a",
+      colorDark: "#000000",
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.M
     });
